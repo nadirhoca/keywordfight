@@ -1,0 +1,161 @@
+
+<div class="min-h-screen flex flex-col items-center p-4 bg-slate-100 overflow-hidden relative">
+
+  <!-- Header -->
+  <header class="w-full max-w-4xl flex justify-between items-center py-6 mb-8">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 bg-red-600 rounded-full"></div>
+      <div class="w-8 h-8 bg-blue-600 rounded-full -ml-4 mix-blend-multiply"></div>
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-800 impact-font ml-2 tracking-tighter">
+        KEYWORD<span class="text-red-600">FIGHT</span>
+      </h1>
+    </div>
+    <div class="text-sm text-slate-500 font-medium">Powered by Gemini AI</div>
+  </header>
+
+  <!-- Main Arena -->
+  <main class="w-full max-w-5xl flex-grow flex flex-col relative z-10">
+    
+    <!-- Input Section (Visible when not fighting or finished) -->
+    @if (!hasFought() && !isFighting()) {
+      <div class="flex flex-col md:flex-row gap-8 items-center justify-center w-full mt-10 md:mt-20">
+        
+        <!-- Left Challenger -->
+        <div class="flex-1 w-full max-w-md">
+          <label class="block text-blue-800 font-bold mb-2 ml-1">CHALLENGER 1</label>
+          <input 
+            type="text" 
+            [ngModel]="leftTerm()"
+            (ngModelChange)="leftTerm.set($event)"
+            (keyup.enter)="startFight()"
+            placeholder="e.g. Cats"
+            class="w-full bg-white border-2 border-slate-200 focus:border-blue-500 rounded-xl px-6 py-4 text-2xl font-bold shadow-sm outline-none transition-all placeholder:font-normal placeholder:text-slate-300"
+          >
+        </div>
+
+        <!-- VS Badge -->
+        <div class="shrink-0 z-10">
+          <div class="w-16 h-16 md:w-20 md:h-20 bg-slate-800 text-white rounded-full flex items-center justify-center font-black text-2xl md:text-3xl italic vs-circle">
+            VS
+          </div>
+        </div>
+
+        <!-- Right Challenger -->
+        <div class="flex-1 w-full max-w-md">
+          <label class="block text-red-800 font-bold mb-2 ml-1 text-right md:text-left">CHALLENGER 2</label>
+          <input 
+            type="text" 
+            [ngModel]="rightTerm()"
+            (ngModelChange)="rightTerm.set($event)"
+            (keyup.enter)="startFight()"
+            placeholder="e.g. Dogs"
+            class="w-full bg-white border-2 border-slate-200 focus:border-red-500 rounded-xl px-6 py-4 text-2xl font-bold shadow-sm outline-none transition-all placeholder:font-normal placeholder:text-slate-300 text-right md:text-left"
+          >
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="mt-12 text-center">
+        <button 
+          (click)="startFight()"
+          class="bg-slate-900 hover:bg-black text-white text-2xl font-black py-4 px-12 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all active:scale-95 tracking-widest"
+        >
+          FIGHT!
+        </button>
+        
+        @if (error()) {
+          <div class="mt-4 text-red-500 font-medium animate-pulse">
+            {{ error() }}
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Fighting Animation State -->
+    @if (isFighting()) {
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-100/90 backdrop-blur-sm z-20">
+        <div class="text-6xl md:text-8xl mb-8 flex gap-8">
+          <span class="shake-animation inline-block">🥊</span>
+          <span class="shake-animation inline-block" style="animation-delay: 0.1s">💥</span>
+        </div>
+        <h2 class="text-4xl font-black text-slate-800 tracking-widest animate-pulse">
+          FIGHTING...
+        </h2>
+        <p class="mt-4 text-slate-500 text-lg">Crunching the data...</p>
+      </div>
+    }
+
+    <!-- Results State -->
+    @if (hasFought() && result(); as res) {
+      <div class="flex flex-col h-full">
+        
+        <!-- Score Board -->
+        <div class="flex-grow flex items-end justify-center gap-4 md:gap-12 px-4 pb-12 pt-8 h-[50vh] min-h-[400px]">
+          
+          <!-- Left Bar -->
+          <div class="flex flex-col items-center justify-end w-1/3 md:w-1/4 h-full group">
+            <div class="mb-4 text-center">
+              <div class="text-xl md:text-3xl font-bold text-slate-700 mb-1 break-all">{{ leftTerm() }}</div>
+              <!-- Added number pipe and adjusted text size for large numbers -->
+              <div class="text-3xl md:text-5xl font-black text-blue-600 impact-font">
+                {{ res.leftScore | number }}
+              </div>
+            </div>
+            <div 
+              class="w-full bg-blue-500 rounded-t-lg shadow-lg relative transition-all duration-1000 ease-out"
+              [style.height.%]="leftBarHeight()"
+            >
+              @if (res.winner === 'left') {
+                <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm animate-bounce">
+                  WINNER
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- VS Divider (Visual) -->
+          <div class="h-12 w-[2px] bg-slate-300 mb-4 opacity-50"></div>
+
+          <!-- Right Bar -->
+          <div class="flex flex-col items-center justify-end w-1/3 md:w-1/4 h-full group">
+            <div class="mb-4 text-center">
+              <div class="text-xl md:text-3xl font-bold text-slate-700 mb-1 break-all">{{ rightTerm() }}</div>
+              <!-- Added number pipe and adjusted text size for large numbers -->
+              <div class="text-3xl md:text-5xl font-black text-red-600 impact-font">
+                {{ res.rightScore | number }}
+              </div>
+            </div>
+            <div 
+              class="w-full bg-red-500 rounded-t-lg shadow-lg relative transition-all duration-1000 ease-out"
+              [style.height.%]="rightBarHeight()"
+            >
+              @if (res.winner === 'right') {
+                <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm animate-bounce">
+                  WINNER
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Commentary Box -->
+        <div class="bg-white rounded-2xl p-8 shadow-xl max-w-2xl mx-auto text-center border border-slate-100 mb-12 transform hover:scale-105 transition-transform duration-300">
+          <div class="text-slate-400 font-bold text-xs uppercase tracking-wider mb-2">Ref's Decision</div>
+          <p class="text-xl md:text-2xl text-slate-800 font-medium leading-relaxed">
+            "{{ res.commentary }}"
+          </p>
+          
+          <button 
+            (click)="reset()"
+            class="mt-8 text-slate-500 hover:text-slate-800 font-bold underline decoration-2 underline-offset-4 decoration-slate-300 hover:decoration-slate-800 transition-all"
+          >
+            Start New Fight
+          </button>
+        </div>
+
+      </div>
+    }
+
+  </main>
+</div>

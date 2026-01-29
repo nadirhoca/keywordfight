@@ -1,0 +1,5 @@
+{
+  "name": "AI Keyword Fight",
+  "description": "A modern reimplementation of the classic Google Fight using Gemini AI to determine which term is more popular, influential, or powerful.",
+  "requestFramePermissions": []
+}
